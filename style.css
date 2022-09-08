@@ -148,7 +148,7 @@ header > h1 {
     }
     
     .form__input {
-        min-width: 300px;
+        max-width: 500px;
         min-height: 50px;
         padding: 5px;
         border-radius: 5px;
