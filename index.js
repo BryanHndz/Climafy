@@ -20,6 +20,32 @@ async function getData(city){
   return json;
 };
 
+function comprobarNombre(nombreCandidato){
+
+  const arrayDeNodos = [...cardsContainer.childNodes];
+  let contadorfinal = 0;
+
+  arrayDeNodos.forEach((nodocard) => {
+    if (nodocard.childNodes[1].childNodes[1].textContent == nombreCandidato){
+      contadorfinal++;
+    } 
+    
+  })
+  return contadorfinal;
+}
+  //to do: Averiguar por qué no valida todas las repeticiones. D:
+
+  /*
+  for (let i = 0; i < cantidadDeNodos; i++) {
+    if (cardsContainer.childNodes[i].childNodes[1] && cardsContainer.childNodes[i].childNodes[1].childNodes[1].textContent === nombreCandidato){
+      console.log(`Valor de i: ${i}`);
+      return true;
+    } else {
+      return false;
+    }
+  } */
+
+
 async function createCard(){
   const newCard = document.createElement('div');
   newCard.id = `_${cardCounter}`;
@@ -27,30 +53,52 @@ async function createCard(){
   const country = searchInput.value;
   const newInfo = await getData(country);
   
-  newCard.className = 'cards-container__card';
-  //newCard.id = 'card';
-  newCard.innerHTML = `<p class="card__city-name" id="cardName">${newInfo.name} 
-                        <span class="card__country-tag">${newInfo.sys.country}</span>
-                      </p>
-                      <span class="card__temperature"><span class="cardTemp" id="cardTemp">${convertirKaC(newInfo.main.temp)}</span>°c</span>
-                      <img class="card__weather-img" id="cardImg" src="https://openweathermap.org/img/wn/${newInfo.weather[0].icon}@2x.png">
-                      <p class="card__weather-description" id="cardDesc"> ${newInfo.weather[0].description} </p>`;
   
-  const equis = document.createElement('span');
-  equis.id = `${cardCounter}${0}`;
-  equis.className = 'card__x';
-  equis.innerHTML = `X`;
-  equis.addEventListener('click', () => {
-    const nodoToRemove = document.getElementById(`_${equis.id / 10}`);
-    nodoToRemove.remove();
+  if (newInfo.cod == 404) {
+    searchInput.classList.add('form__input--error');
+    searchInput.value = '';
+    searchInput.placeholder = 'Ciudad no encontrada';
 
-  });
+    return;
+//true
+  } else if (comprobarNombre(newInfo.name)){
+    searchInput.classList.add('form__input--error');
+    searchInput.value = '';
+    searchInput.placeholder = 'Esa ciudad ya fue buscada';
+    
+    return 0;
 
-  newCard.insertAdjacentElement('afterbegin',equis);
+  } else {
+      searchInput.classList.remove('form__input--error');
+      searchInput.placeholder = 'Ingresa una ciudad';
+    
+      newCard.className = 'cards-container__card';
+      //newCard.id = 'card';
+      newCard.innerHTML = `<p class="card__city-name" id="cardName">
+                                                            <span class='cardInfo'>${newInfo.name}</span> 
+                            <span class="card__country-tag">${newInfo.sys.country}</span>
+                          </p>
+                          <span class="card__temperature"><span class="cardTemp" id="cardTemp">${convertirKaC(newInfo.main.temp)}</span>°c</span>
+                          <img class="card__weather-img" id="cardImg" src="https://openweathermap.org/img/wn/${newInfo.weather[0].icon}@2x.png">
+                          <p class="card__weather-description" id="cardDesc"> ${newInfo.weather[0].description} </p>`;
+      
+      const equis = document.createElement('span');
+      equis.id = `${cardCounter}${0}`;
+      equis.className = 'card__x';
+      equis.innerHTML = `X`;
+      equis.addEventListener('click', () => {
+        const nodoToRemove = document.getElementById(`_${equis.id / 10}`);
+        nodoToRemove.remove();
+      });
 
-  cardsContainer.appendChild(newCard);
+      newCard.insertAdjacentElement('afterbegin',equis);
+
+      cardsContainer.appendChild(newCard);
+
+      cardCounter++;
+  }
+
   
-  cardCounter++;
 
   return;
 };
